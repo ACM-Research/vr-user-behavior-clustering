@@ -1,0 +1,3 @@
+# Constant
+IMAGE_WIDTH = 3840
+IMAGE_HEIGHT = 1920
