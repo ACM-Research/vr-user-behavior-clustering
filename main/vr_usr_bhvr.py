@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from pathlib import PureWindowsPath
 
-parser = DataParser(os.getcwd(), 1, 20, 10)
+parser = DataParser(os.getcwd(), 23, 80, 40)
 
 # path = r"C:\Users\Thinh Nguyen\OneDrive\_1_Fall2021\ACM\Research\vr-user-behavior\main\resources\UserTracesByVideo\1"
 # DataParser.csvRowReader(path, 0, "0Z4VWJ")
