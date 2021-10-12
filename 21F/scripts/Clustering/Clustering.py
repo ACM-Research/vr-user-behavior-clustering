@@ -68,13 +68,13 @@ def getAffinityMatrix(matrices, threshold):
     for matrix in matrixIterator:
         for i in range(len(matrix)):
             row = matrix[i]
-            for j in range(i, len(row)):
+            for j in range(i + 1, len(row)):
                 affinityMatrix[i][j] += row[j]
 
     # Set all cells with values that exceed the threshold to one, and all others to zero.
     for i in range(len(affinityMatrix)):
         row = affinityMatrix[i]
-        for j in range(i, len(row)):
+        for j in range(i + 1, len(row)):
             if row[j] >= threshold:
                 row[j] = 1
             else:
