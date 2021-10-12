@@ -17,16 +17,16 @@
 
 ## Next steps
 
+### Visualizing Clusters
+
+* Important for determining relative accuracy of algorithm
+* Slight changes to Data Parser to save Users in a way that allows us to map nodes in clusters to user viewport centers
+* Map graph onto image to visualize
+
 ### Classifying users for the whole video using the clusters per frame
 
 * Speak with Dr. Prakash in order to validate and develop ideas on user classification given the clusters
 * What parameters can be tuned?
-* Begin implementation if possible
-
-### Generating Statistics
-
-* If faculty meeting happens next week
-* Create statistic generators along with assumptions about their input in order to define the requirements of the predictor
 
 ## Papers
 
