@@ -1,3 +1,4 @@
+import geopy
 import app.env
 import math, csv, os, glob
 import numpy as np
@@ -10,6 +11,7 @@ from typing import List
 from pathlib import PureWindowsPath
 from pathlib import Path
 from geopy.distance import great_circle
+from geopy.distance import EARTH_RADIUS
 
 env = app.env
 
@@ -34,10 +36,12 @@ class DataParser:
     @staticmethod
     def find_csv_filenames(path_to_dir, suffix=".csv"):
         path_to_dir = Path(path_to_dir)
-        
+        fileNames = []
         os.chdir(path_to_dir)
         for file in glob.glob('*{}'.format(suffix)):
-            yield file.replace(suffix, "")
+            fileNames.append(file.replace(suffix, ""))
+
+        return fileNames 
 
     @staticmethod
     def csvRowReader(path_to_dir, rowIndex, fileName, suffix=".csv"):
@@ -90,9 +94,9 @@ class DataParser:
     def calculateGeodesic(rlatlong_1, rlatlong_2):
         pointA = (rlatlong_1[1], rlatlong_1[2])
         pointB = (rlatlong_2[1], rlatlong_2[2])
-        return great_circle(pointA, pointB)
+        return great_circle(pointA, pointB).km / EARTH_RADIUS # convert to radian
 
-    def collectAdjacencyMatrix(self, frameNumber, threshold = sympy.pi/5):
+    def collectAdjacencyMatrix(self, frameNumber, threshold = sympy.pi/10):
         numberOfUser = len(self.allUserID)
         self.adjacencyArray = np.empty(shape=(numberOfUser,numberOfUser))
         self.adjacencyArray.fill(0)
@@ -111,7 +115,8 @@ class DataParser:
                 xyz_useridCol = [float(frameRow_useridCol[5]), float(frameRow_useridCol[6]), float(frameRow_useridCol[7])]
                 rlatlong_useridCol = DataParser.asGeographic(xyz_useridCol)
 
-                if DataParser.calculateGeodesic(rlatlong_useridRow, rlatlong_useridCol) <= threshold:
+                # print(DataParser.calculateGeodesic(rlatlong_useridRow, rlatlong_useridCol))
+                if float(DataParser.calculateGeodesic(rlatlong_useridRow, rlatlong_useridCol)) <= float(threshold):
                     self.adjacencyArray[rowIndex, colIndex] = 1
 
                 colIndex = colIndex + 1
