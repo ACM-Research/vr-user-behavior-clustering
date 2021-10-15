@@ -12,4 +12,4 @@ parser = DataParser(os.getcwd(), 23, 80, 40)
 # parser.loadHeatmapData()
 # parser.loadHeatmap()
 
-parser.collectAdjacencyMatrix(1)
+print(parser.collectAdjacencyMatrix(30))

@@ -123,7 +123,7 @@ class DataParser:
 
             rowIndex = rowIndex + 1
 
-        print(self.adjacencyArray)
+        return self.adjacencyArray
 
     def collectHeatDiagramLocations(self, frameNumber):
         # draw user trace points
