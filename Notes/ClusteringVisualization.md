@@ -1,3 +1,39 @@
+## High-Level Overview
+
+```python
+all_colours = [blue, red, green ...] # 30 colours
+
+# output from clustering algorithm
+[[id1, id5, id4], [id3, id2]]
+
+class Chunk:
+    clusters = [[id1, id5, id4], [id3, id2]]
+    colours = [blue, green]
+    frame_range = [60, 120]
+	
+  	def getIterator():
+        return UserIterator(self)
+
+class UserIterator:
+    chunk
+    cluster_index
+    user_index
+    
+    # (user, colour)
+    def __next__():
+        # cluster/user index incrementing logic goes here
+        return (chunk.clusters[cluster_index][user_index], 
+                chunk.colours[cluster_index])
+
+# pseudo-code
+for chunk in video:
+    clusters = chunk.clusters
+    for (user, colour) in chunk.getIterator():
+		for frame_number in range(chunk.frame_range[0], chunk.frame_range[1] + 1):
+        	position = get_position(frame_number, user)
+        	plot(position, colour)
+```
+
 ## Clustering
 
 For a particular chunk (some fixed number of frames), create a list of clusters for that chunk (a cluster is a list of userIDs).
