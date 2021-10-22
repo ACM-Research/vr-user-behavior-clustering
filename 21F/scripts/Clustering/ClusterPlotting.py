@@ -126,7 +126,7 @@ pseudocode:
 def clusterPlotting( cluster_color_id, frame_range, videoID):
     dp = DataParser("C:/Users/salma/vr-user-behavior-clustering",videoID)
 
-    # for now not supplying the frame range just want to see if we can plot user positions for one frame
+    # for now not supplying the frame range just want to see if we can plot user positions for one frame.
     frames_dict = dp.pos_id_frame()
     print(frames_dict.keys())
     for frame_number in frames_dict.keys():
