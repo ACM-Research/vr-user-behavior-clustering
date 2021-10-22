@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+#from ..Common.VideoUtil import Chunk
 
 # Returns a list of clusters of the given graph,
 # where each cluster is a list of nodes belonging to that graph.
@@ -30,6 +31,33 @@ def getClusters(graph):
         currentGraph.remove_nodes_from(maxClique)
         
     return clusters
+
+# Iterates that iterates over clusters in a given graph.
+class ClusterIterator:
+    
+    def __init__(self, graph) -> None:
+        self.graph = graph.copy
+
+    def __iter__(self) -> None:
+        return self
+    
+    def __next__(self):
+        if graph.number_of_nodes() == 0:
+            raise StopIteration
+
+        cliqueIterator = nx.find_cliques(graph)
+        maxClique = next(cliqueIterator)
+
+        # Find the clique with the most nodes.
+        for clique in cliqueIterator:
+            if len(clique) > len(maxClique):
+                maxClique = clique
+
+        # Remove nodes in the clique from the graph.
+        currentGraph.remove_nodes_from(maxClique)
+        
+        # Return the clique with the most nodes.
+        return maxClique
 
 # Returns an affinity matrix for a list of adjacency matrices and a given threshold.
 # The affinity matrix returned is a 2d matrix where each entry is an int that is either
@@ -94,32 +122,35 @@ def matrixToGraph(matrix):
 
     return graph
 
-# AFFINITY MATRIX TEST
-
-matrices = [np.array([[1, 0, 1, 1, 0], [1, 0, 1, 0, 0], [0, 1, 1, 1, 0], [0, 1, 1, 1, 0], [1, 0, 1, 1, 0]]), 
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]])]
-
-affinityMatrix = getAffinityMatrix(matrices, 2)
-for row in affinityMatrix:
-    print(row)
-
-# GRAPH CONSTRUCTION TEST
-
-graph = matrixToGraph(affinityMatrix)
-
-# CLUSTERING TEST
-
-#graph = nx.Graph()
-#graph.add_edges_from([(2, 4), (1, 3), (2, 3), (3, 6), (4, 5), (5, 6), (1, 7), (1, 2), (3, 4), (4, 6)])
-pos = nx.shell_layout(graph)
-nx.draw_networkx(graph, pos=pos)
-plt.show()
-
-clusters = getClusters(graph)
-for cluster in clusters:
-    clusterGraph = graph.subgraph(cluster)
-    nx.draw_networkx(clusterGraph, pos=pos)
+#def getClusters(chunk: Chunk, distanceThreshold: float, affinityThreshold: int):
     
-plt.show()
+
+#def getAffinityMatrix(chunk: Chunk, distanceThreshold: float, affinityThreshold: int):
+    
+    
+def getAffinityMatrix(matrices, affinityThreshold: int):
+    matrixIterator = iter(matrices)
+    
+    # Get the first adjacency matrix in the matrix iterator.
+    firstMatrix = next(matrixIterator)
+
+    # Copy the contents of the first adjacency matrix as a starting point for the affinity matrix.
+    affinityMatrix = [row for row in firstMatrix]
+
+    # For each adjacency matrix, add the value in each cell to the corresponding cell of the affinity matrix.
+    for matrix in matrixIterator:
+        for i in range(len(matrix)):
+            row = matrix[i]
+            for j in range(i + 1, len(row)):
+                affinityMatrix[i][j] += row[j]
+
+    # Set all cells with values that exceed the threshold to one, and all others to zero.
+    for i in range(len(affinityMatrix)):
+        row = affinityMatrix[i]
+        for j in range(i + 1, len(row)):
+            if row[j] >= affinityThreshold:
+                row[j] = 1
+            else:
+                row[j] = 0
+
+    return affinityMatrix

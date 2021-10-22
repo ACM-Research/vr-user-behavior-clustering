@@ -17,7 +17,7 @@ env = app.env
 
 class DataParser:
     def __init__(self, baseDir, videoID, numCols, numRows) -> None:
-        self.csvPath = f"{baseDir}/resources/UserTracesByVideo/{videoID}/"
+        self.csvPath = f"{baseDir}UserTracesByVideo/{videoID}/"
         self.videoID = videoID
         self.numCols = numCols
         self.numRows = numRows
