@@ -1,5 +1,5 @@
 import geopy
-import app.env
+#import app.env
 import math, csv, os, glob
 import numpy as np
 import pandas as pd
@@ -13,17 +13,17 @@ from pathlib import Path
 from geopy.distance import great_circle
 from geopy.distance import EARTH_RADIUS
 
-env = app.env
+
 
 class DataParser:
     def __init__(self, baseDir, videoID, numCols, numRows) -> None:
-        self.csvPath = f"{baseDir}/resources/UserTracesByVideo/{videoID}/"
+        self.csvPath = f"{baseDir}/Data/UserTracesByVideo/{videoID}/"
         self.videoID = videoID
         self.numCols = numCols
         self.numRows = numRows
         self.allUserID = DataParser.find_csv_filenames(self.csvPath)
-        self.frameImgWidth = env.IMAGE_WIDTH
-        self.frameImgHeigth = env.IMAGE_HEIGHT
+        self.frameImgWidth = 3840
+        self.frameImgHeigth = 1920
         self.userTraces = []
         self.heatmapArray = None
         self.adjacencyArray = None
@@ -33,6 +33,8 @@ class DataParser:
         # for id in self.allUserID:
         #     print(id) 
 
+    def getUserID(self):
+        return self.allUserID
     @staticmethod
     def find_csv_filenames(path_to_dir, suffix=".csv"):
         path_to_dir = Path(path_to_dir)
@@ -123,7 +125,7 @@ class DataParser:
 
             rowIndex = rowIndex + 1
 
-        print(self.adjacencyArray)
+        return (self.adjacencyArray)
 
     def collectHeatDiagramLocations(self, frameNumber):
         # draw user trace points
@@ -160,4 +162,5 @@ class DataParser:
     def loadHeatmap(self):
         ax = sns.heatmap(self.heatmapArray)
         plt.show()
-        
+dataP = DataParser("C:/Users/salma/vr-user-behavior-clustering",1,40,80)
+print(dataP.collectAdjacencyMatrix(60))

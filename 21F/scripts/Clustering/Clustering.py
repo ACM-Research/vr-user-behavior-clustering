@@ -1,7 +1,20 @@
 import networkx as nx
-import matplotlib.pyplot as plt
-import numpy as np
 
+import geopy
+#import app.env
+import math, csv, os, glob
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import sympy
+
+from typing import List
+from pathlib import PureWindowsPath
+from pathlib import Path
+from geopy.distance import great_circle
+from geopy.distance import EARTH_RADIUS
+from DataParser import DataParser
 # Returns a list of clusters of the given graph,
 # where each cluster is a list of nodes belonging to that graph.
 #
@@ -63,18 +76,18 @@ def getAffinityMatrix(matrices, threshold):
 
     # Copy the contents of the first adjacency matrix as a starting point for the affinity matrix.
     affinityMatrix = [row for row in firstMatrix]
-
+    print(affinityMatrix)
     # For each adjacency matrix, add the value in each cell to the corresponding cell of the affinity matrix.
     for matrix in matrixIterator:
         for i in range(len(matrix)):
             row = matrix[i]
-            for j in range(i + 1, len(row)):
+            for j in range(i + 1, row.size):
                 affinityMatrix[i][j] += row[j]
 
     # Set all cells with values that exceed the threshold to one, and all others to zero.
     for i in range(len(affinityMatrix)):
         row = affinityMatrix[i]
-        for j in range(i + 1, len(row)):
+        for j in range(i + 1, row.size):
             if row[j] >= threshold:
                 row[j] = 1
             else:
@@ -85,41 +98,58 @@ def getAffinityMatrix(matrices, threshold):
 # Constructs a networkx Graph from an upper triangular adjacency matrix.
 def matrixToGraph(matrix):
     graph = nx.Graph()
-
+    returnGraph = []
     for i in range(len(matrix)):
         row = matrix[i]
-        for j in range(i + 1, len(row)):
+        for j in range(i + 1, row.size):
             if row[j] == 1:
                 graph.add_edge(i, j)
+                returnGraph.append((i,j))
 
     return graph
 
+
+# Initialize data parser
+dataP = DataParser("C:/Users/salma/vr-user-behavior-clustering",1,40,80)
+userID = dataP.getUserID # gets all user ids
+#for frame in range(60, 121):
+#    matrices = dataP.collectAdjacencyMatrix(iX)
+ #   cluster 
+
+# Get adjency matrix data frame 60
+matrices = dataP.collectAdjacencyMatrix(60)
 # AFFINITY MATRIX TEST
 
-matrices = [np.array([[1, 0, 1, 1, 0], [1, 0, 1, 0, 0], [0, 1, 1, 1, 0], [0, 1, 1, 1, 0], [1, 0, 1, 1, 0]]), 
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
-            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]])]
+#matrices = [np.array([[1, 0, 1, 1, 0], [1, 0, 1, 0, 0], [0, 1, 1, 1, 0], [0, 1, 1, 1, 0], [1, 0, 1, 1, 0]]), 
+#            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
+#            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]]),
+#            np.array([[1, 1, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 0, 1], [0, 1, 1, 1, 0]])]
+
 
 affinityMatrix = getAffinityMatrix(matrices, 2)
+# print 30 values around
 for row in affinityMatrix:
     print(row)
 
 # GRAPH CONSTRUCTION TEST
-
+# pass the affinty matrix to method to convert to graph
 graph = matrixToGraph(affinityMatrix)
 
 # CLUSTERING TEST
 
 #graph = nx.Graph()
 #graph.add_edges_from([(2, 4), (1, 3), (2, 3), (3, 6), (4, 5), (5, 6), (1, 7), (1, 2), (3, 4), (4, 6)])
-pos = nx.shell_layout(graph)
-nx.draw_networkx(graph, pos=pos)
-plt.show()
+#pos = nx.shell_layout(graph)
+#nx.draw_networkx(graph, pos=pos)
+#plt.show()
 
 clusters = getClusters(graph)
+clusterGraph = nx.Graph()
 for cluster in clusters:
-    clusterGraph = graph.subgraph(cluster)
-    nx.draw_networkx(clusterGraph, pos=pos)
+    print(cluster )
+    print("CLUSTER")
+    #clusterGraph = graph.subgraph( cluster)
+    nx.draw_networkx(graph, pos=pos)
+    plt.show()
     
-plt.show()
+
