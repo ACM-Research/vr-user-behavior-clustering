@@ -154,6 +154,7 @@ def clusterPlotting(cluster_position):
             y = math.floor(xyz_to_xy[1]) // 4
             print(f"{userID} X: {x} y: {y}")
             cv2.circle(imS,(x,y), 5, color, -1) # plot on imS with (x,y) with tuple of rgb
+
     cv2.imshow('frame visualization', imS)
     cv2.waitKey(0)
 
@@ -167,7 +168,7 @@ height = 1920
 imgloc = f"C:\\Users\\salma\\vr-user-behavior-clustering\\Data\\VideosData\\Videos\\SourceFrames\\23\\frame781.jpg"
 img = cv2.imread(imgloc,cv2.IMREAD_COLOR)
 imS = cv2.resize(img, (960, 480))
-
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 dp = DataParser("C:/Users/salma/vr-user-behavior-clustering",23)
 frames_dict = dp.pos_id_frame()
@@ -178,7 +179,9 @@ for frame_number in frames_dict.keys():
         y = math.floor(frame_to_IDs[userID][1]) //4
         print(f"{userID} X: {x} y: {y}")
         cv2.circle(imS,(x,y), 5, (0,255,0), -1)
-
+        
+        # takes image, text, coordinates, font, font size, font color, font thickness below
+        cv2.putText(imS, userID, (x,y),font,.3,(0,0,255), 1)
 
 cv2.imshow('imS', imS)
 cv2.waitKey(0)
