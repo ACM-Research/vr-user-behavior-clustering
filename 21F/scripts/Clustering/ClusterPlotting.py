@@ -51,10 +51,11 @@ class DataParser:
         This method in the end take in a frame_list like [60,120] to represent frames 60 to 120.
         It iterates through the frames and converts user traces
     """
-    def pos_id_frame(self, frame_list = 1):
+    def pos_id_frame(self, frame_list = 781):
         self.frames_dict = {}
-        for frame in range(frame_list):
-            self.convertusertraces(frame+1)
+        #for frame in range(frame_list):
+            #self.convertusertraces(frame+1)
+        self.convertusertraces(frame_list+1)
         return self.frames_dict
 
     def importusertraces(self):
@@ -121,21 +122,63 @@ pseudocode:
 """
 
 
+# worry about color and positions
+# def clusterPlotting(color_position)
+"""
+def clusterPlotting(color_position)
+"""
+def convXYZtoXY(xyz):
+    imagesize = [3840, 1920]
+    arr = [xyz[5], xyz[6], xyz[7]]
+    yaw, pitch = DataParser.convvec2angl(arr)
+        
+       
+    x = ((yaw + 180) / 360) * imagesize[0]
+    y = ((90 - pitch) / 180) * imagesize[1]
+    pos = (x, y)
+    return pos
+    
+def clusterPlotting(cluster_position):
+    
+    # path to image replace later
+    imgloc = f"C:\\Users\\salma\\vr-user-behavior-clustering\\Data\\VideosData\\Videos\\SourceFrames\\23\\frame1.jpg"
+    img = cv2.imread(imgloc,cv2.IMREAD_COLOR) # reads in file
+    imS = cv2.resize(img, (960, 480))       # resizes cause cv2 weird. divide original position by 4
 
-
-def clusterPlotting( cluster_color_id, frame_range, videoID):
-    dp = DataParser("C:/Users/salma/vr-user-behavior-clustering",videoID)
-
-    # for now not supplying the frame range just want to see if we can plot user positions for one frame.
-    frames_dict = dp.pos_id_frame()
-    print(frames_dict.keys())
-    for frame_number in frames_dict.keys():
-        frame_to_IDs = frames_dict[frame_number]
-        for userID in frame_to_IDs.keys():
-            x = frame_to_IDs[userID][0]
-            y = frame_to_IDs[userID][1]
+    for color in cluster_position.keys():
+        # grab positions for that color
+        color_to_position = cluster_position[color]
+        for position in color_to_position: # for each position plott
+            xyz_to_xy = convXYZtoXY(position)
+            x = math.floor(xyz_to_xy[0]) // 4 # divide by 4 because of resize
+            y = math.floor(xyz_to_xy[1]) // 4
             print(f"{userID} X: {x} y: {y}")
-            
+            cv2.circle(imS,(x,y), 5, color, -1) # plot on imS with (x,y) with tuple of rgb
+    cv2.imshow('frame visualization', imS)
+    cv2.waitKey(0)
+
     return True
     
-e = clusterPlotting({"red":[1,3,3]},1,23)
+
+# code to TEST open-cv below (comment out if not needed)
+width = 3840
+height = 1920
+
+imgloc = f"C:\\Users\\salma\\vr-user-behavior-clustering\\Data\\VideosData\\Videos\\SourceFrames\\23\\frame781.jpg"
+img = cv2.imread(imgloc,cv2.IMREAD_COLOR)
+imS = cv2.resize(img, (960, 480))
+
+
+dp = DataParser("C:/Users/salma/vr-user-behavior-clustering",23)
+frames_dict = dp.pos_id_frame()
+for frame_number in frames_dict.keys():
+    frame_to_IDs = frames_dict[frame_number]
+    for userID in frame_to_IDs.keys():
+        x = math.floor(frame_to_IDs[userID][0]) //4
+        y = math.floor(frame_to_IDs[userID][1]) //4
+        print(f"{userID} X: {x} y: {y}")
+        cv2.circle(imS,(x,y), 5, (0,255,0), -1)
+
+
+cv2.imshow('imS', imS)
+cv2.waitKey(0)
