@@ -1,5 +1,6 @@
 from geopy import distance
 from typing import Tuple
+from math import atan2, asin, degrees
 
 Vector2 = Tuple[float, float]
 Vector3 = Tuple[float, float, float]
@@ -7,10 +8,13 @@ Vector3 = Tuple[float, float, float]
 distance.EARTH_RADIUS = 1
 
 # Given a cartesian coordinate (x, y, z) returns the equivalent spherical coordinate (yaw, pitch).
-def cartesianToSpherical(xyz: Tuple[float, float, float]) -> Tuple[float, float]:
-    yaw = math.degrees(math.atan2(xyz[0], xyz[2]))
-    pitch = math.degrees(math.asin(xyz[1]))
+def cartesianToSpherical(xyz: Vector3) -> Vector2:
+    yaw = degrees(atan2(xyz[0], xyz[2]))
+    pitch = degrees(asin(xyz[1]))
     return (yaw, pitch)
+
+def getGeodesicDistance(point1: Vector3, point2: Vector3):
+    return distance.great_circle(cartesianToSpherical(point1), cartesianToSpherical(point2))
 
 # Parameters:
 # positionMatrix - outer List

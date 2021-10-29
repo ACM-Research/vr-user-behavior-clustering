@@ -1,14 +1,18 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
-#from ..Common.VideoUtil import Chunk
+
+from geopy import distance
+from Utilities import cartesianToSpherical
+
+distance.EARTH_RADIUS = 1
 
 # Returns a list of clusters of the given graph,
 # where each cluster is a list of nodes belonging to that graph.
 #
 # graph - a networkx Graph
 
-def getClusters(graph):
+def getMaxCliques(graph):
     if graph == None:
         return None
     
@@ -31,6 +35,28 @@ def getClusters(graph):
         currentGraph.remove_nodes_from(maxClique)
         
     return clusters
+
+def getClusters(chunk, distanceThreshold, affinityThreshold):
+    userCount = len(chunk.tracePositions[0])
+    affinityMatrix = [[0 for _ in range(userCount)] for _ in range(userCount)]
+
+    # Construct affinity matrix
+    for userList in chunk.tracePositions:
+        for i in range(userCount):
+            for j in range(i + 1, userCount):
+                geoDistance = distance.great_circle(cartesianToSpherical(userList[i]), cartesianToSpherical(userList[j]))
+                if (geoDistance > distanceThreshold):
+                    affinityMatrix[i][j] += 1
+
+    # Construct graph from affinity matrix
+    graph = nx.Graph()
+    for i in range(userCount):
+        row = affinityMatrix[i]
+        for j in range(userCount):
+            if row[j] > affinityThreshold:
+                graph.add_edge(i, j)
+
+    return getMaxCliques(graph)
 
 # Iterates that iterates over clusters in a given graph.
 class ClusterIterator:
@@ -121,12 +147,6 @@ def matrixToGraph(matrix):
                 graph.add_edge(i, j)
 
     return graph
-
-#def getClusters(chunk: Chunk, distanceThreshold: float, affinityThreshold: int):
-    
-
-#def getAffinityMatrix(chunk: Chunk, distanceThreshold: float, affinityThreshold: int):
-    
     
 def getAffinityMatrix(matrices, affinityThreshold: int):
     matrixIterator = iter(matrices)
