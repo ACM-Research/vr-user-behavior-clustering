@@ -162,5 +162,6 @@ class DataParser:
     def loadHeatmap(self):
         ax = sns.heatmap(self.heatmapArray)
         plt.show()
-dataP = DataParser("C:/Users/salma/vr-user-behavior-clustering",1,40,80)
+        
+dataP = DataParser("../../../",1,40,80)
 print(dataP.collectAdjacencyMatrix(60))

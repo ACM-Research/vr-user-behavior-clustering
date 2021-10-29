@@ -15,12 +15,17 @@ from pathlib import Path
 from geopy.distance import great_circle
 from geopy.distance import EARTH_RADIUS
 from DataParser import DataParser
+#from geopy import distance
+from Utilities import cartesianToSpherical
+
+EARTH_RADIUS = 1
+
 # Returns a list of clusters of the given graph,
 # where each cluster is a list of nodes belonging to that graph.
 #
 # graph - a networkx Graph
 
-def getClusters(graph):
+def getMaxCliques(graph):
     if graph == None:
         return None
     
@@ -43,6 +48,55 @@ def getClusters(graph):
         currentGraph.remove_nodes_from(maxClique)
         
     return clusters
+
+def getClusters(chunk, distanceThreshold, affinityThreshold):
+    userCount = len(chunk.tracePositions[0])
+    affinityMatrix = [[0 for _ in range(userCount)] for _ in range(userCount)]
+
+    # Construct affinity matrix
+    for userList in chunk.tracePositions:
+        for i in range(userCount):
+            for j in range(i + 1, userCount):
+                geoDistance = great_circle(cartesianToSpherical(userList[i]), cartesianToSpherical(userList[j]))
+                if (geoDistance > distanceThreshold):
+                    affinityMatrix[i][j] += 1
+
+    # Construct graph from affinity matrix
+    graph = nx.Graph()
+    for i in range(userCount):
+        row = affinityMatrix[i]
+        for j in range(userCount):
+            if row[j] > affinityThreshold:
+                graph.add_edge(i, j)
+
+    return getMaxCliques(graph)
+
+# Iterates that iterates over clusters in a given graph.
+class ClusterIterator:
+    
+    def __init__(self, graph) -> None:
+        self.graph = graph.copy
+
+    def __iter__(self) -> None:
+        return self
+    
+    def __next__(self):
+        if graph.number_of_nodes() == 0:
+            raise StopIteration
+
+        cliqueIterator = nx.find_cliques(graph)
+        maxClique = next(cliqueIterator)
+
+        # Find the clique with the most nodes.
+        for clique in cliqueIterator:
+            if len(clique) > len(maxClique):
+                maxClique = clique
+
+        # Remove nodes in the clique from the graph.
+        currentGraph.remove_nodes_from(maxClique)
+        
+        # Return the clique with the most nodes.
+        return maxClique
 
 # Returns an affinity matrix for a list of adjacency matrices and a given threshold.
 # The affinity matrix returned is a 2d matrix where each entry is an int that is either
@@ -107,10 +161,37 @@ def matrixToGraph(matrix):
                 returnGraph.append((i,j))
 
     return graph
+    
+def getAffinityMatrix(matrices, affinityThreshold: int):
+    matrixIterator = iter(matrices)
+    
+    # Get the first adjacency matrix in the matrix iterator.
+    firstMatrix = next(matrixIterator)
 
+    # Copy the contents of the first adjacency matrix as a starting point for the affinity matrix.
+    affinityMatrix = [row for row in firstMatrix]
+
+    
+    # For each adjacency matrix, add the value in each cell to the corresponding cell of the affinity matrix.
+    for matrix in matrixIterator:
+        for i in range(len(matrix)):
+            row = matrix[i]
+            for j in range(i + 1, len(row)):
+                affinityMatrix[i][j] += row[j]
+
+    # Set all cells with values that exceed the threshold to one, and all others to zero.
+    for i in range(len(affinityMatrix)):
+        row = affinityMatrix[i]
+        for j in range(i + 1, len(row)):
+            if row[j] >= affinityThreshold:
+                row[j] = 1
+            else:
+                row[j] = 0
+                
+    return affinityMatrix
 
 # Initialize data parser
-dataP = DataParser("C:/Users/salma/vr-user-behavior-clustering",1,40,80)
+dataP = DataParser("../../../",1,40,80)
 userID = dataP.getUserID # gets all user ids
 #for frame in range(60, 121):
 #    matrices = dataP.collectAdjacencyMatrix(iX)
@@ -135,8 +216,6 @@ for row in affinityMatrix:
 # pass the affinty matrix to method to convert to graph
 graph = matrixToGraph(affinityMatrix)
 
-# CLUSTERING TEST
-
 #graph = nx.Graph()
 #graph.add_edges_from([(2, 4), (1, 3), (2, 3), (3, 6), (4, 5), (5, 6), (1, 7), (1, 2), (3, 4), (4, 6)])
 #pos = nx.shell_layout(graph)
@@ -151,5 +230,3 @@ for cluster in clusters:
     #clusterGraph = graph.subgraph( cluster)
     nx.draw_networkx(graph, pos=pos)
     plt.show()
-    
-

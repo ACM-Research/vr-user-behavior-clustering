@@ -1,6 +1,7 @@
 import csv
 import os
 from PIL import Image
+from typing import List, Tuple
 
 # Utility class for reading, caching, and parsing various video data.
 class DataManager:
@@ -14,7 +15,7 @@ class DataManager:
         self.tracesPath = f'{baseDir}/Data/UserTracesByVideo/'
 
     # Get a (width, height) tuple for a particular video.
-    def getVideoDimensions(self, videoId):
+    def getVideoDimensions(self, videoId: int) -> Tuple[int, int]:
         if videoId in self.videoDimensions:
             return self.videoDimensions[videoId]
         else:
@@ -22,11 +23,15 @@ class DataManager:
             with Image.open(frame) as im:
                 self.videoDimensions[videoId] = im.size
                 return im.size
-
+                                                        
     # Get a list of the file paths of traces for a particular video.
-    def getTraces(self, videoId):
-        tracesDir = f'{self.tracesPath}/{videoId}/'
+    def getTraces(self, videoId: int):
+        tracesDir = f'{self.tracesPath}/{videoId}'
         return [tracesDir + name for name in os.listdir(tracesDir)]
+
+    # Returns the path to the trace for a particular video and user.
+    def getTracePath(self, videoId: int, userId: str) -> str:
+        return f'{self.tracesPath}/{videoId}/{userId}.csv'
 
     # Get a list of direction vectors for each frame in frameList for a
     # all the traces for a particular video. Returns a 2d list of
