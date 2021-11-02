@@ -10,6 +10,16 @@ from PIL import Image, ImageDraw
 import networkx as nx
 import cv2
 
+def plot(point:
+
+class ClusterPlotter:
+
+    def __init__(image):
+        self.image = image
+        self.dimensions = 
+
+    def plot(point: Vector3):
+        cv2.circle(imS,(x,y), 5, color, -1) # plot on imS with (x,y) with tuple of rgb        
 
 
 '''

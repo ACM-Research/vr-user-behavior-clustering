@@ -1,4 +1,5 @@
 import csv
+import cv2
 import os
 
 from PIL import Image
@@ -62,20 +63,22 @@ class ChunkIterator:
         self.currentFrame += self.chunkLength
         return chunk
 
-class Video:
+class VideoData:
 
-    def __init__(self, videoId: int, framesPath: str, tracesPath: str) -> None:
+    def __init__(self, videoId: int, videosPath: str, tracesPath: str):
         self.videoId = videoId
-        self.framesPath = framesPath     # path to directory containing source frames
-        self.tracesPath = tracesPath     # path to directory containing user traces
+        self.videoPath = f'{videosPath}/Source/{videoId}.mp4'
+        self.tracesPath = f'{tracesPath}/{videoId}'
+        self.framesPath = f'{videosPath}/SourceFrames/{videoId}'
         
         self._dimensions: Tuple[int, int] = None  # (width, height)
         self._userIds: List[str]          = None  # users associated with traces
 
     # Get (width, height) of the video.
-    def getDimensions(self) -> Tuple[int, int]:
+    def getDimensions(self) -> Tuple[int, int, int]:
         if self._dimensions == None:
-            framePath = f'{self.framesPath}/frame1.jpg'
+            framePath = f'{self.framesPath}/frame0.jpg'
+#            with cv2.imread(f'{self.framesPath}/frame0.jpg', cv2.IMREAD_UNCHANGED
             with Image.open(framePath) as frame:
                 self._dimensions = frame.size
 
@@ -92,12 +95,16 @@ class Video:
         traceIterators = [TraceIterator(f'{self.tracesPath}/{userId}.csv') for userId in self.getUserIds()]
         return ChunkIterator(traceIterators, length)
 
-class VideoManager:
+    def getFrameImage(self, frameNumber: int):
+        return cv2.imread(f'{self.framesPath}/frame{frameNumber}.jpg', cv2.IMREAD_COLOR)
+
+class VideoDataManager:
     
     def __init__(self, baseDir):
         self.baseDir = baseDir
-        self.framesPath = f'{baseDir}/Data/VideosData/Videos/SourceFrames'
+        self.videosPath = f'{baseDir}/Data/VideosData/Videos/'
         self.tracesPath = f'{baseDir}/Data/UserTracesByVideo'
+        self.visPath = f'{baseDir}/21F/Visualizations'
 
-    def getVideo(self, videoId: int):
-        return Video(int, f'{self.framesPath}/{videoId}', f'{self.tracesPath}/{videoId}')
+    def getVideoData(self, videoId: int):
+        return VideoData(videoId, self.videosPath, self.tracesPath)

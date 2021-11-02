@@ -13,6 +13,12 @@ def cartesianToSpherical(xyz: Vector3) -> Vector2:
     pitch = degrees(asin(xyz[1]))
     return (yaw, pitch)
 
+def mapTo2D(xyz: Vector3, dimensions) -> Vector2:
+    (yaw, pitch) = cartesianToSpherical(xyz)
+    x = ((yaw + 180) / 360) * dimensions[0]
+    y = ((90 - pitch) / 180) * dimensions[1]
+    return (x, y)
+
 def getGeodesicDistance(point1: Vector3, point2: Vector3):
     return distance.great_circle(cartesianToSpherical(point1), cartesianToSpherical(point2))
 
