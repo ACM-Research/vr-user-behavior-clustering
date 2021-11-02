@@ -11,17 +11,20 @@ distance.EARTH_RADIUS = 1
 def cartesianToSpherical(xyz: Vector3) -> Vector2:
     yaw = degrees(atan2(xyz[0], xyz[2]))
     pitch = degrees(asin(xyz[1]))
-    return (yaw, pitch)
+    return (pitch, yaw)
 
 def mapTo2D(xyz: Vector3, dimensions) -> Vector2:
-    (yaw, pitch) = cartesianToSpherical(xyz)
+    (pitch, yaw) = cartesianToSpherical(xyz)
     x = ((yaw + 180) / 360) * dimensions[0]
     y = ((90 - pitch) / 180) * dimensions[1]
     return (x, y)
 
 def getGeodesicDistance(point1: Vector3, point2: Vector3):
-    return distance.great_circle(cartesianToSpherical(point1), cartesianToSpherical(point2))
+    spherical1 = cartesianToSpherical(point1)
+    spherical2 = cartesianToSpherical(point2)
+    return distance.great_circle((spherical1[1], spherical1[0]), (spherical2[1], spherical2[0]))
 
+#print(getGeodesicDistance((-0.16352, 0.10097, 0.98136)
 # Parameters:
 # positionMatrix - outer List
 #def getAffinityMatrix(positionMatrix: List[List[Vector3]], adjacencyThreshold: float):
