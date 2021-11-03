@@ -50,7 +50,7 @@ if not videoCapture.isOpened():
     exit()
 
 fps = videoCapture.get(5)
-frameSize = (960, 480)
+frameSize = (720, 360)
 writer = cv2.VideoWriter(f'{manager.visPath}/{videoId}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, frameSize)
 
 for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
@@ -59,10 +59,8 @@ for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
 
     start = perf_counter()
     # Get clusters for current chunk, using distance threshold of pi/10 and affinity of 40 frames.
-    clusters = getClusters(chunk, pi/10, 59)
+    clusters = getClusters(chunk, pi/5, 59)
     print(clusters)
-    endClusters = perf_counter()
-    print(f'Time to get clusters: {endClusters - start}')
     startFrame = chunk.frameRange[0] + 1
 
     for i in range(len(chunk.tracePositions)):
@@ -77,6 +75,11 @@ for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
 
         # Plot all users in all clusters
         for clusterIndex, cluster in enumerate(clusters):
+            if len(cluster) < 2:
+                    color = (0, 0, 0)
+            else:
+                color = colors[clusterIndex]
+                    
             for userIndex in cluster:
                 positionFloat = mapTo2D(userPositions[userIndex], frameSize)
                 positionInt = (int(positionFloat[0]), int(positionFloat[1]))
@@ -86,18 +89,14 @@ for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
                 else:
                     textLeft = positionInt[0] - 2
 
-                if len(cluster) < 2:
-                    color = (0, 0, 0)
-                else:
-                    color = colors[clusterIndex]
-                    
                 cv2.circle(frame, positionInt, 5, color, -1)
                 cv2.putText(frame, str(userIndex), (textLeft, positionInt[1] + 2), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (255, 255, 255), 1)
 
         # Write new video frame
         writer.write(frame)
-    endChunk = perf_counter()
-    print(f'Time to process chunk: {endChunk - start}')
+        
+    end = perf_counter()
+    print(f'Processed chunk {chunkIndex} in {end - start}')
 
 cv2.destroyAllWindows()
 videoCapture.release()

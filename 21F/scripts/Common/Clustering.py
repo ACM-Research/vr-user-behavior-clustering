@@ -22,7 +22,7 @@ def getMaxCliques(graph):
             if len(clique) > len(maxClique):
                 maxClique = clique
             # Optimization: if a clique includes more than half of the nodes in the entire
-            # graph, it must have the most nodes.
+            # graph, it must be the maximum clique.
             if len(clique) > currentGraph.number_of_nodes() / 2 + 1:
                 break
 
@@ -67,7 +67,17 @@ def getClusters(chunk, distanceThreshold, affinityThreshold):
                 point1 = userList[i]
                 point2 = userList[j]
                 # arccos  of dot product of the two points
-                geoDistance = acos(point1[0] * point2[0] + point1[1] * point2[1] + point1[2] * point2[2])
+                dotProduct = point1[0] * point2[0] + point1[1] * point2[1] + point1[2] * point2[2]
+
+                # Sometimes, due to rounding errors, the dot product falls slightly outside of the
+                # range [-1, 1], causing an domain error for acos. So we clamp it to [-1, 1].
+                # Since all vectors are normalized this is OK.
+                if dotProduct < -1:
+                    dotProduct = -1
+                elif dotProduct > 1:
+                    dotProduct = 1
+                    
+                geoDistance = acos(dotProduct)
                 if geoDistance <= distanceThreshold:
                     affinityMatrix[i][j] += 1
 
