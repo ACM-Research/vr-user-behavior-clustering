@@ -6,8 +6,8 @@ from Utilities import mapTo2D, cartesianToSpherical
 
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
 
 NUMBER_OF_CLUSTER = 0
 
@@ -38,6 +38,13 @@ def create_clusters(numberOfUser, points):
     
     # print(optimizedNumberOfCluster)
 
+    # plt.style.use("fivethirtyeight")
+    # plt.plot(range(2, numberOfUser), silhouette_coefficients)
+    # plt.xticks(range(2, numberOfUser))
+    # plt.xlabel("Number of Clusters")
+    # plt.ylabel("Silhouette Coefficient")
+    # plt.show()
+
     # kmeans = KMeans(**kmeans_kwargs).fit(points)
 
     for label in optimizedClusterLabels : cluster.append(label)
@@ -66,11 +73,8 @@ for frame in frameListUserPosition:
 
     frameListUser2DPosition.append(list2Dcoords)
 
-# standardize data before cluster
-scaled_2dposition = StandardScaler().fit_transform(frameListUser2DPosition[frameIndex])
 
-# clusterData = create_clusters(len(videoData.getUserIds()), frameListUser2DPosition[frameIndex])
-clusterData = create_clusters(len(videoData.getUserIds()), scaled_2dposition)
+clusterData = create_clusters(len(videoData.getUserIds()), frameListUser2DPosition[frameIndex])
 
 clusterArray = [[] for i in range(clusterData[0])]
 
@@ -78,10 +82,3 @@ for userIndex in range(0, len(videoData.getUserIds())):
     clusterArray[clusterData[1][userIndex]].append(userIndex)
 
 print(clusterArray)
-
-# plt.style.use("fivethirtyeight")
-# plt.plot(range(2, len(videoData.getUserIds())), silhouette_coefficients)
-# plt.xticks(range(2, len(videoData.getUserIds())))
-# plt.xlabel("Number of Clusters")
-# plt.ylabel("Silhouette Coefficient")
-# plt.show()
