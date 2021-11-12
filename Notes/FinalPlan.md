@@ -25,16 +25,21 @@ We use silhouette score to measure cluster quality. Silhouette score ranges from
 
 ### Graphs
 
-#### Bar graph
+#### Average silhouette scores per video catergory (bar graph)
 
 - X-axis consists of three categories: one for each video type, each category has three bars, one for each algorithm
 - Y-axis is silhouette score averaged over all videos in respective category
 
-#### Line graph
+#### Chunk-based silhouette scores over time (line graph)
 
 - X-axis is time in chunks
 - Y-axis is silhouette score for chunk
 - Have multiple lines, each lines for one video from one category
+
+#### Average silhouette scores per user (bar graph)
+
+- X-axis is users (numbered 1 through 30)
+- Y-axis is average silhouette score for a user (for a particular video, or maybe video category)
 
 #### Computing silhouette scores per chunk
 
