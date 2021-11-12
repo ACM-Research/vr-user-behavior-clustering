@@ -1,3 +1,30 @@
+### **Goal** 
+
+Determine which clustering algorithm is best for a particular video type.
+
+### Metrics
+
+We use silhouette score to measure cluster quality. Silhouette score ranges from -1 to 1 and indicates how close a particular user is to other users in its cluster compared to users in other clusters (higher values are better).
+
+### **Algorithms to evaluate:**
+
+- Geodesic distance
+- K-means
+- DB scan
+
+### **Method**
+
+1. Split the video into fixed-size chunks (for example, 60 frames long).
+2. Use each algorithm to generate *per-frame* clusters for each frame in the chunk. 
+   - Note that using the geodesic approach, users will be in the same cluster if they are all within a particular distance from one another.
+3. Create an *affinity matrix* for the entire chunk, which indicates how often two users belonged to the same cluster throughout the chunk. The [i, j]th entry of the matrix is the *affinity* of users i and j - the number of frames for which users i and j were in the same cluster.
+4. Convert the affinity matrix into a graph. Any two users whose affinity value exceeds a certain threshold (for example, 40 frames) are set to be adjacent in the graph.
+5. Generate clusters *for the entire chunk* by using the BK algorithm to find disjoint max cliques of the graph. Each clique is a cluster.
+6. Using the clusters computed in the previous step, compute the silhouette scores for each user for every frame in the chunk, and average them to compute the average silhouette score for the chunk.
+7. Repeat 2-7 for all chunks in the video. Average the per-chunk silhouette scores to obtain an average silhouette score for the entire video.
+
+### Graphs
+
 #### Bar graph
 
 - X-axis consists of three categories: one for each video type, each category has three bars, one for each algorithm
@@ -11,8 +38,8 @@
 
 #### Computing silhouette scores per chunk
 
-1. Create affinity matrix for a chunk using each algorithm: geodistance, k-means, and DBscan
-2. Construct graph from affinity matrix using affinity threshold
-3. Find max cliques of graph to obtain clusters for chunk
-4. Compute silhouette score per frame by comparing users in that frame to computed clusters
-5. Average silhouette scores per frame to get silhouette score per chunk
+1. Create affinity matrix for a chunk using each algorithm: geodistance DONE, k-means, and DBscan
+2. Construct graph from affinity matrix using affinity threshold DONE
+3. Find max cliques of graph to obtain clusters for chunk DONE
+4. Compute silhouette score per frame by comparing users in that frame to computed clusters DONE
+5. Average silhouette scores per frame to get silhouette score per chunk DONE
