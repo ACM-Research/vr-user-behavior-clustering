@@ -62,6 +62,12 @@ class KMeans:
 
             if optimized:
                 break
+    
+    def getCluster(self):
+        cluster = []
+        for classification in self.classifications:
+            cluster.append([user.idx for user in kmeans.classifications[classification]])
+        return cluster
 
 
 videoId         = int(sys.argv[1])
@@ -87,9 +93,4 @@ normalizedData = standardize_data(frameListUser3dPosition[frameIndex])
 kmeans = KMeans(k = 3, random_state = 30, max_iter = 300)
 kmeans.fit(normalizedData)
 
-cluster = []
-
-for classification in kmeans.classifications:
-    cluster.append([user.idx for  user in kmeans.classifications[classification]])
-
-print(cluster)
+print(kmeans.getCluster())
