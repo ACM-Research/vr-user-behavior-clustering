@@ -1,5 +1,4 @@
 import sys, random
-from geopy.distance import geodesic
 import numpy as np
 from typing import Tuple, List
 
@@ -24,25 +23,12 @@ def standardize_data(data: List[Tuple[float, float, float]]) -> List[UserDataPoi
     for idx, value in enumerate(data): dataList.append(UserDataPoint(idx, value))
     return dataList
 
-class DBScan:
-    def __init__(self, Eps : float, MinPt : int):
-        self.core = -1
-        self.border = -2
-        self.Eps = Eps
-        self.MintPt = MinPt
-
-    def get_neighbor(self, userPointList : list, sample_idx):
-        neighbors = []
-        curUserPoint = userPointList[sample_idx]
-        idxs = np.range(len(userPointList))
-
-        for usrIdx, usrVal in enumerate(userPointList[idxs != sample_idx]):
-            # Geodesic distance
-            geodesic_distance = getGeodesicDistance(usrVal.location, curUserPoint.location)
-            if geodesic_distance < self.Eps:
-                neighbors.append(usrIdx)
-        
-        return np.array(neighbors)
+class KMeans:
+    def __init__(self, k=2, tol=0.01, random_state = None, max_iter=300):
+        if random_state is not None: random.seed(random_state)
+        self.k = k
+        self.tol = tol
+        self.max_iter = max_iter
 
     def fit(self, userPointList : list):
         self.centroids = random.sample(userPointList, self.k)
