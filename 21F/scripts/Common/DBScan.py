@@ -2,8 +2,7 @@ import sys, random
 from geopy.distance import geodesic
 import numpy as np
 from typing import Tuple, List
-
-from numpy.ma.core import default_fill_value
+from queue import Queue
 
 from VideoUtil import VideoData, VideoDataManager
 from Utilities import mapTo2D, getGeodesicDistance
@@ -33,50 +32,82 @@ class DBScan:
 
     def get_neighbor(self, userPointList : list, sample_idx):
         neighbors = []
-        curUserPoint = userPointList[sample_idx]
-        idxs = np.range(len(userPointList))
+        curUser = userPointList[sample_idx]
 
-        for usrIdx, usrVal in enumerate(userPointList[idxs != sample_idx]):
-            # Geodesic distance
-            geodesic_distance = getGeodesicDistance(usrVal.location, curUserPoint.location)
-            if geodesic_distance < self.Eps:
-                neighbors.append(usrIdx)
+        for usrIdx, usrVal in enumerate(userPointList):            
+            if (usrIdx != sample_idx):    
+                # Geodesic distance
+                geodesic_distance = getGeodesicDistance(usrVal.location, curUser.location)
+                if geodesic_distance < self.Eps:
+                    neighbors.append(usrIdx)
         
-        return np.array(neighbors)
+        return neighbors
 
     def fit(self, userPointList : list):
-        self.centroids = random.sample(userPointList, self.k)
+        # initialize all points as outliers
+        self.point_label = [0] * len(userPointList)
+        point_count = []
+
+        # initilize list for core/border points
+        core = []
+        border = []
+
+        # print(point_label)
         
-        for i in range(self.max_iter):
-            self.classifications = {}
+        # Find the neighbours of each individual point
+        for usrIdx, usrVal in enumerate(userPointList):
+            point_count.append(self.get_neighbor(userPointList, usrIdx))
 
-            for i in range(self.k):
-                self.classifications[i] = []
+        # print(point_count)
 
-            for userPoint in userPointList:
-                geodesicDistances = [getGeodesicDistance(userPoint.location, centroid.location) for centroid in self.centroids]
-                classification = geodesicDistances.index(min(geodesicDistances))
-                self.classifications[classification].append(userPoint)
+        # Find all the core points, border points and outliers
+        for usrIdx in range(len(point_count)):
+            if (len(point_count[usrIdx]) >= self.MintPt):
+                self.point_label[usrIdx] = self.core
+                core.append(usrIdx)
+            else:
+                border.append(usrIdx)
 
-            prev_centroids = self.centroids
+        for i in border:
+            for j in point_count[i]:
+                if j in core:
+                    self.point_label[i] = self.border
+                    break
+        
+        # Assign points to a cluster
+        self.cluster = 1
 
-            for classification in self.classifications:
-                locationsList = [pos.location for pos in self.classifications[classification]]
-                self.centroids[classification] = UserDataPoint(classification, np.average(locationsList,axis=0))
+        # Here we use a queue to find all the neighbourhood points of a core point and find the indirectly reachable points
+        # We are essentially performing Breadth First search of all points which are within Epsilon distance for each other
+        for i in range(len(self.point_label)):
+            q = Queue()
+            if (self.point_label[i] == self.core):
+                self.point_label[i] = self.cluster
+                for x in point_count[i]:
+                    if(self.point_label[x] == self.core):
+                        q.put(x)
+                        self.point_label[x] = self.cluster
+                    elif(self.point_label[x] == self.border):
+                        self.point_label[x] = self.cluster
+                while not q.empty():
+                    neighbors = point_count[q.get()]
+                    for y in neighbors:
+                        if (self.point_label[y] == self.core):
+                            self.point_label[y] = self.cluster
+                            q.put(y)
+                        if (self.point_label[y] == self.border):
+                            self.point_label[y] = self.cluster
+                self.cluster += 1  # Move on to the next cluster
+        
+        # return self.point_label, self.cluster #label for each userIdx and nunber of cluster
 
-            optimized = True
+    def getCluster(self) -> List:
+        clusterArray = [[] for i in range(self.cluster)]
+        for userIdx, label in enumerate(self.point_label):
+            clusterArray[label].append(userIdx)
 
-            for idx, value in enumerate(self.centroids):
-                original_centroid = np.array(prev_centroids[idx].location)
-                current_centroid = np.array(value.location)
-                
-                # mape = np.mean(np.abs(original_centroid - original_centroid) / original_centroid) * 100
-                mape = np.sum((current_centroid - original_centroid) / original_centroid * 100.0)
-                if mape > self.tol: optimized = False
-
-            if optimized:
-                break
-
+        return clusterArray
+            
 
 videoId         = int(sys.argv[1])
 frameIndex      = int(sys.argv[2])
@@ -98,12 +129,6 @@ normalizedData = standardize_data(frameListUser3dPosition[frameIndex])
 # print()
 # print()
 
-kmeans = KMeans(k = 3, random_state = 30, max_iter = 300)
-kmeans.fit(normalizedData)
-
-cluster = []
-
-for classification in kmeans.classifications:
-    cluster.append([user.idx for  user in kmeans.classifications[classification]])
-
-print(cluster)
+dbscan = DBScan(0.25, 3)
+dbscan.fit(normalizedData)
+print(dbscan.getCluster())

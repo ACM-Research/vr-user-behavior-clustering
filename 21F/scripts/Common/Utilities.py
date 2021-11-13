@@ -1,6 +1,6 @@
 from geopy import distance
 from typing import Tuple
-from math import atan2, asin, degrees
+from math import atan2, asin, acos, degrees
 
 Vector2 = Tuple[float, float]
 Vector3 = Tuple[float, float, float]
@@ -20,9 +20,28 @@ def mapTo2D(xyz: Vector3, dimensions) -> Vector2:
     return (x, y)
 
 def getGeodesicDistance(point1: Vector3, point2: Vector3):
-    spherical1 = cartesianToSpherical(point1)
-    spherical2 = cartesianToSpherical(point2)
-    return distance.great_circle((spherical1[1], spherical1[0]), (spherical2[1], spherical2[0]))
+    dotProduct = point1[0] * point2[0] + point1[1] * point2[1] + point1[2] * point2[2]
+    
+    # Sometimes, due to rounding errors, the dot product falls slightly outside of the
+    # range [-1, 1], causing an domain error for acos. So we clamp it to [-1, 1].
+    if dotProduct < -1:
+        dotProduct = -1
+    elif dotProduct > 1:
+        dotProduct = 1
+                    
+    return acos(dotProduct)
+
+def geoDistance(point1: Vector3, point2: Vector3):
+    dotProduct = point1[0] * point2[0] + point1[1] * point2[1] + point1[2] * point2[2]
+    
+    # Sometimes, due to rounding errors, the dot product falls slightly outside of the
+    # range [-1, 1], causing an domain error for acos. So we clamp it to [-1, 1].
+    if dotProduct < -1:
+        dotProduct = -1
+    elif dotProduct > 1:
+        dotProduct = 1
+                    
+    return acos(dotProduct)
 
 #print(getGeodesicDistance((-0.16352, 0.10097, 0.98136)
 # Parameters:
