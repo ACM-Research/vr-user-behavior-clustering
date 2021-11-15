@@ -89,9 +89,9 @@ class DBScan:
         for userIdx, label in enumerate(self.point_label):
             if(label != 0):
                 clusterArray[label].append(userIdx)
-            else:
-                own_cluster = [userIdx]
-                outliers.append(own_cluster)
+            # else:
+            #     own_cluster = [userIdx]
+            #     outliers.append(own_cluster)
 
         if (len(outliers) > 0):
             clusterArray =  list(filter(None, clusterArray + outliers))

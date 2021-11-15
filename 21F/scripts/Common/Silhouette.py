@@ -17,7 +17,7 @@ scoresKMeans = [0] * userCount
 scoresDBScan = [0] * userCount
 
 kmeans = KMeans(k = 3, random_state = 30, max_iter = 300)
-dbscan = DBScan(0.25, 3)
+dbscan = DBScan(0.9, 3)
 
 print('Left to right: geodesic, k-means, DB scan')
 
