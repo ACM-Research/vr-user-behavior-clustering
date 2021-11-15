@@ -1,6 +1,6 @@
 from math import pi
 
-from Clustering import affinityGeodesic, affinity, getClusters
+from Clustering import affinityGeodesic, affinity, getClusters, printMatrix
 from KMeans import KMeans
 from DBScan import DBScan
 from Utilities import populateDistanceMatrix, getSilhouetteScores, standardize_data
@@ -35,14 +35,29 @@ for videoIndex in range(1, 31):
         
         affinityGeodesic(chunk, affinityMatrix, pi/5)
         clustersGeodesic = getClusters(affinityMatrix, 40)
-
+        
+        for i in range(len(affinityMatrix)):
+            row = affinityMatrix[i]
+            for j in range(i + 1, len(row)):
+                row[j] = 0
+                
         normalizedTracePositions = [standardize_data(userPositions) for userPositions in chunk.tracePositions]
 
+#        printMatrix(affinityMatrix)
         affinity(normalizedTracePositions, dbscan, affinityMatrix)
         clustersDBScan = getClusters(affinityMatrix, 40)
+
+ #       printMatrix(affinityMatrix)
         
+
+                
         affinity(normalizedTracePositions, kmeans, affinityMatrix)
         clustersKMeans = getClusters(affinityMatrix, 40)
+
+        for i in range(len(affinityMatrix)):
+            row = affinityMatrix[i]
+            for j in range(i + 1, len(row)):
+                row[j] = 0
             
         for userPositions in chunk.tracePositions:
             populateDistanceMatrix(userPositions, distanceMatrix)
@@ -67,10 +82,7 @@ for videoIndex in range(1, 31):
         videoScoreKMeans += chunkScoreKMeans
         videoScoreDBScan += chunkScoreDBScan
         
-        for i in range(len(affinityMatrix)):
-            row = affinityMatrix[i]
-            for j in range(i + 1, len(row)):
-                row[j] = 0
+        
 
         for i in range(userCount):
             scoresGeodesic[i] = 0.0

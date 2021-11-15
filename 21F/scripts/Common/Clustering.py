@@ -78,15 +78,19 @@ def affinityGeodesic(chunk, affinityMatrix: List[List[int]], distanceThreshold: 
                     row[j] += 1
                             
 def affinity(normalizedTracePositions, algorithm, affinityMatrix: List[List[int]]):
+    for i in range(len(affinityMatrix)):
+        row = affinityMatrix[i]
+        for j in range(i + 1, len(row)):
+            row[j] = 0
+
     for userPositions in normalizedTracePositions:
         algorithm.fit(userPositions)
         clusters = algorithm.getCluster()
 
         for cluster in clusters:
-            clusterLength = len(cluster)
-            for i in range(clusterLength):
-                for j in range(clusterLength):
-                    if i < j:
-                        affinityMatrix[i][j] += 1
-                    elif i > j:
-                        affinityMatrix[j][i] += 1
+            cluster.sort()
+            for i in range(len(cluster)):
+                for j in range(i + 1, len(cluster)):
+                    user1 = cluster[i]
+                    user2 = cluster[j]
+                    affinityMatrix[user1][user2] += 1
