@@ -68,8 +68,12 @@ def getClusters(affinityMatrix: List[List[int]], affinityThreshold: int):
 
 # Populates an affinity matrix for a given chunk using geodesic distance
 # to determine whether users are adjacent for a given frame.
-# The matrix is assumed to be initialized to all 0 values.
 def affinityGeodesic(chunk, affinityMatrix: List[List[int]], distanceThreshold: int):
+    for i in range(len(affinityMatrix)):
+        row = affinityMatrix[i]
+        for j in range(i + 1, len(row)):
+            row[j] = 0
+            
     for userPositions in chunk.tracePositions:
         for i in range(chunk.userCount):
             row = affinityMatrix[i]

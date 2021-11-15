@@ -1,4 +1,5 @@
 from math import pi
+import sys
 
 from Clustering import affinityGeodesic, affinity, getClusters, printMatrix
 from KMeans import KMeans
@@ -20,6 +21,10 @@ dbscan = DBScan(0.25, 3)
 
 print('Left to right: geodesic, k-means, DB scan')
 
+calculateGeodesic = True if sys.argv[1] == 'true' else False
+calculateKMeans = True if sys.argv[2] == 'true' else False
+calculateDBScan = True if sys.argv[3] == 'true' else False
+
 for videoIndex in range(1, 31):
     if videoIndex == 15 or videoIndex == 16:
         continue
@@ -32,38 +37,33 @@ for videoIndex in range(1, 31):
 
     for chunk in videoData.getChunks(60):
         chunkCount += 1
-        
-        affinityGeodesic(chunk, affinityMatrix, pi/5)
-        clustersGeodesic = getClusters(affinityMatrix, 40)
-        
-        for i in range(len(affinityMatrix)):
-            row = affinityMatrix[i]
-            for j in range(i + 1, len(row)):
-                row[j] = 0
-                
-        normalizedTracePositions = [standardize_data(userPositions) for userPositions in chunk.tracePositions]
 
-#        printMatrix(affinityMatrix)
-        affinity(normalizedTracePositions, dbscan, affinityMatrix)
-        clustersDBScan = getClusters(affinityMatrix, 40)
+        if calculateGeodesic:
+            affinityGeodesic(chunk, affinityMatrix, pi/5)
+            clustersGeodesic = getClusters(affinityMatrix, 40)
 
- #       printMatrix(affinityMatrix)
-        
+        if calculateKMeans or calculateDBScan:
+            normalizedTracePositions = [standardize_data(userPositions) for userPositions in chunk.tracePositions]
 
-                
-        affinity(normalizedTracePositions, kmeans, affinityMatrix)
-        clustersKMeans = getClusters(affinityMatrix, 40)
+        if calculateDBScan:
+            affinity(normalizedTracePositions, dbscan, affinityMatrix)
+            clustersDBScan = getClusters(affinityMatrix, 40)
 
-        for i in range(len(affinityMatrix)):
-            row = affinityMatrix[i]
-            for j in range(i + 1, len(row)):
-                row[j] = 0
+        if calculateKMeans:
+            affinity(normalizedTracePositions, kmeans, affinityMatrix)
+            clustersKMeans = getClusters(affinityMatrix, 40)
             
         for userPositions in chunk.tracePositions:
             populateDistanceMatrix(userPositions, distanceMatrix)
-            getSilhouetteScores(distanceMatrix, clustersGeodesic, scoresGeodesic)
-            getSilhouetteScores(distanceMatrix, clustersDBScan, scoresDBScan)
-            getSilhouetteScores(distanceMatrix, clustersKMeans, scoresKMeans)
+
+            if calculateGeodesic:
+                getSilhouetteScores(distanceMatrix, clustersGeodesic, scoresGeodesic)
+
+            if calculateDBScan:
+                getSilhouetteScores(distanceMatrix, clustersDBScan, scoresDBScan)
+
+            if calculateKMeans:
+                getSilhouetteScores(distanceMatrix, clustersKMeans, scoresKMeans)
 
         chunkScoreGeodesic = 0.0
         chunkScoreDBScan = 0.0
@@ -81,8 +81,6 @@ for videoIndex in range(1, 31):
         videoScoreGeodesic += chunkScoreGeodesic
         videoScoreKMeans += chunkScoreKMeans
         videoScoreDBScan += chunkScoreDBScan
-        
-        
 
         for i in range(userCount):
             scoresGeodesic[i] = 0.0
