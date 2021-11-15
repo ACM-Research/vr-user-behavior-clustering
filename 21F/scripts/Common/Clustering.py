@@ -1,14 +1,46 @@
 from networkx import Graph, find_cliques
 from math import acos
+from typing import List
+from Utilities import geoDistance
 
-# Returns a list of clusters of the given graph,
-# where each cluster is a list of nodes belonging to that graph.
-#
-# graph - a networkx Graph
+def printMatrix(matrix):
+    print('', end='   ')
+    for i in range(len(matrix)):
+        if i > 9:
+            print(i, end=' ')
+        else:
+            print(i, end='  ')
+    print()
+    
+    for r, row in enumerate(matrix):
+        if r > 9:
+            print(r, end=' ')
+        else:
+            print(r, end='  ')
+            
+        for c, item in enumerate(row):
+            if item > 9:
+                print(item, end=' ')
+            else:
+                print(item, end='  ')
+        print()
 
-def getMaxCliques(graph):
-    if graph == None:
-        return None
+# Given a particular affinity matrix and threshold, returns a list of clusters
+# using BK max clique.
+def getClusters(affinityMatrix: List[List[int]], affinityThreshold: int):
+    userCount = len(affinityMatrix)
+    graph = Graph()
+
+    # Add all users to the graph
+    for i in range(userCount):
+        graph.add_node(i)
+
+    # Add edges
+    for i in range(userCount):
+        row = affinityMatrix[i]
+        for j in range(i + 1, userCount):
+            if row[j] > affinityThreshold:
+                graph.add_edge(i, j)
     
     clusters = []
     currentGraph = graph.copy()
@@ -34,94 +66,27 @@ def getMaxCliques(graph):
         
     return clusters
 
-def printMatrix(matrix):
-    print('', end='   ')
-    for i in range(len(matrix)):
-        if i > 9:
-            print(i, end=' ')
-        else:
-            print(i, end='  ')
-    print()
-    
-    for r, row in enumerate(matrix):
-        if r > 9:
-            print(r, end=' ')
-        else:
-            print(r, end='  ')
-            
-        for c, item in enumerate(row):
-            if item > 9:
-                print(item, end=' ')
-            else:
-                print(item, end='  ')
-        print()
+# Populates an affinity matrix for a given chunk using geodesic distance
+# to determine whether users are adjacent for a given frame.
+# The matrix is assumed to be initialized to all 0 values.
+def affinityGeodesic(chunk, affinityMatrix: List[List[int]], distanceThreshold: int):
+    for userPositions in chunk.tracePositions:
+        for i in range(chunk.userCount):
+            row = affinityMatrix[i]
+            for j in range(i + 1, chunk.userCount):
+                if geoDistance(userPositions[i], userPositions[j]) <= distanceThreshold:
+                    row[j] += 1
+                            
+def affinity(normalizedTracePositions, algorithm, affinityMatrix: List[List[int]]):
+    for userPositions in normalizedTracePositions:
+        algorithm.fit(userPositions)
+        clusters = algorithm.getCluster()
 
-def getClusters(chunk, distanceThreshold, affinityThreshold):
-    userCount = len(chunk.tracePositions[0])
-    affinityMatrix = [[0 for _ in range(userCount)] for _ in range(userCount)]
-
-    # Construct affinity matrix
-    for userList in chunk.tracePositions:
-        for i in range(userCount):
-            for j in range(i + 1, userCount):
-                point1 = userList[i]
-                point2 = userList[j]
-                # arccos  of dot product of the two points
-                dotProduct = point1[0] * point2[0] + point1[1] * point2[1] + point1[2] * point2[2]
-
-                # Sometimes, due to rounding errors, the dot product falls slightly outside of the
-                # range [-1, 1], causing an domain error for acos. So we clamp it to [-1, 1].
-                # Since all vectors are normalized this is OK.
-                if dotProduct < -1:
-                    dotProduct = -1
-                elif dotProduct > 1:
-                    dotProduct = 1
-                    
-                geoDistance = acos(dotProduct)
-                if geoDistance <= distanceThreshold:
-                    affinityMatrix[i][j] += 1
-
-    #printMatrix(affinityMatrix)
-    # Construct graph from affinity matrix
-    graph = Graph()
-
-    # Add all users to the graph
-    for i in range(userCount):
-        graph.add_node(i)
-
-    # Add edges
-    for i in range(userCount):
-        row = affinityMatrix[i]
-        for j in range(i + 1, userCount):
-            if row[j] > affinityThreshold:
-                graph.add_edge(i, j)
-
-    return getMaxCliques(graph)
-
-            
-# Iterates that iterates over clusters in a given graph.
-class ClusterIterator:
-    
-    def __init__(self, graph) -> None:
-        self.graph = graph.copy
-
-    def __iter__(self) -> None:
-        return self
-    
-    def __next__(self):
-        if graph.number_of_nodes() == 0:
-            raise StopIteration
-
-        cliqueIterator = find_cliques(graph)
-        maxClique = next(cliqueIterator)
-
-        # Find the clique with the most nodes.
-        for clique in cliqueIterator:
-            if len(clique) > len(maxClique):
-                maxClique = clique
-
-        # Remove nodes in the clique from the graph.
-        currentGraph.remove_nodes_from(maxClique)
-        
-        # Return the clique with the most nodes.
-        return maxClique
+        for cluster in clusters:
+            clusterLength = len(cluster)
+            for i in range(clusterLength):
+                for j in range(clusterLength):
+                    if i < j:
+                        affinityMatrix[i][j] += 1
+                    elif i > j:
+                        affinityMatrix[j][i] += 1

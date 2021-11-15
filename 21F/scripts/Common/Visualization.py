@@ -6,6 +6,7 @@ from Clustering import getClusters
 from math import pi
 from time import perf_counter
 from Utilities import mapTo2D, cartesianToSpherical
+from Kmeans import Kmeans
 
 argc = len(sys.argv)
 
@@ -53,14 +54,16 @@ fps = videoCapture.get(5)
 frameSize = (720, 360)
 writer = cv2.VideoWriter(f'{manager.visPath}/{videoId}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, frameSize)
 
+kmeans = KMeans(k = 3, random_state = 30, max_iter = 300)
+
 for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
     if chunkIndex == chunkCount:
         break
 
     start = perf_counter()
-    # Get clusters for current chunk, using distance threshold of pi/10 and affinity of 40 frames.
-    clusters = getClusters(chunk, pi/5, 59)
-    print(clusters)
+    clusters = kemeans(
+    #clusters = getClustersBK(chunk, pi/5, 59)
+    #print(clusters)
     startFrame = chunk.frameRange[0] + 1
 
     for i in range(len(chunk.tracePositions)):
@@ -73,10 +76,12 @@ for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
         userPositions = chunk.tracePositions[i]
         frame = cv2.resize(frame, frameSize)
 
+        singularClusters = 0
         # Plot all users in all clusters
         for clusterIndex, cluster in enumerate(clusters):
             if len(cluster) < 2:
-                    color = (0, 0, 0)
+                color = (0, 0, 0)
+                singularClusters += 1
             else:
                 color = colors[clusterIndex]
                     
@@ -92,6 +97,7 @@ for chunkIndex, chunk in enumerate(videoData.getChunks(60)):
                 cv2.circle(frame, positionInt, 5, color, -1)
                 cv2.putText(frame, str(userIndex), (textLeft, positionInt[1] + 2), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (255, 255, 255), 1)
 
+        cv2.putText(frame, f'{len(clusters) - singularClusters} ({singularClusters})', (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
         # Write new video frame
         writer.write(frame)
         

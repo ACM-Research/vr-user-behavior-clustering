@@ -2,7 +2,6 @@ import csv
 import cv2
 import os
 
-from PIL import Image
 from typing import List, Tuple
 from Utilities import Vector2, Vector3
 
@@ -41,6 +40,19 @@ class Chunk:
     def __init__(self, tracePositions: List[List[Vector3]], frameRange: range):
         self.tracePositions = tracePositions    # tracePositions[i][j] corresponds to the position of user j during the ith frame
         self.frameRange = frameRange
+        self.userCount = len(tracePositions[0])
+        
+    # Returns a list of silhouette scores for each user, where the nth element
+    # in the list is the average silhouette score over the chunk for user n.
+    def getSilhouetteScores(clusters):
+        scores: List[float] = [0.0 for _ in range(self.userCount)]
+        getS
+
+        frameCount = len(tracePositions)
+        for i in range(len(scores)):
+            scores[i] = scores[i] / frameCount
+
+        return scores
 
 class ChunkIterator:
 
@@ -74,16 +86,6 @@ class VideoData:
         self._dimensions: Tuple[int, int] = None  # (width, height)
         self._userIds: List[str]          = None  # users associated with traces
 
-    # Get (width, height) of the video.
-    def getDimensions(self) -> Tuple[int, int, int]:
-        if self._dimensions == None:
-            framePath = f'{self.framesPath}/frame0.jpg'
-#            with cv2.imread(f'{self.framesPath}/frame0.jpg', cv2.IMREAD_UNCHANGED
-            with Image.open(framePath) as frame:
-                self._dimensions = frame.size
-
-        return self._dimensions
-
     # Get a list of all users for the video.
     def getUserIds(self) -> List[str]:
         if self._userIds == None:
@@ -102,7 +104,7 @@ class VideoDataManager:
     
     def __init__(self, baseDir):
         self.baseDir = baseDir
-        self.videosPath = f'{baseDir}/Data/VideosData/Videos/'
+        self.videosPath = f'{baseDir}/Data/VideosData/Videos'
         self.tracesPath = f'{baseDir}/Data/UserTracesByVideo'
         self.visPath = f'{baseDir}/21F/Visualizations'
 
