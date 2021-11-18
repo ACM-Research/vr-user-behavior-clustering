@@ -17,7 +17,7 @@ scoresKMeans = [0] * userCount
 scoresDBScan = [0] * userCount
 
 kmeans = KMeans(k = 3, random_state = 30, max_iter = 300)
-dbscan = DBScan(0.9, 3)
+dbscan = DBScan(pi/10, 3)
 
 print('Left to right: geodesic, k-means, DB scan')
 
@@ -39,7 +39,7 @@ for videoIndex in range(1, 31):
         chunkCount += 1
 
         if calculateGeodesic:
-            affinityGeodesic(chunk, affinityMatrix, pi/5)
+            affinityGeodesic(chunk, affinityMatrix, pi/10)
             clustersGeodesic = getClusters(affinityMatrix, 40)
 
         if calculateKMeans or calculateDBScan:
