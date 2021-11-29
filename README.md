@@ -1,6 +1,6 @@
 # VR User Behavior Clustering
 
-![poster](Images\poster.jpg)
+<img src="Images\poster.jpg" alt="Poster"/>
 
 ## Motivation
 
@@ -30,15 +30,17 @@ Methods for determining user similarity that take into account user viewport *de
 
 Using this method, we analyzed 28 different 360-degree videos, categorized by the type of camera movement and number of moving objects present in each video.
 
-### Identifying Similar Users
+## Identifying Similar Users
 
-#### Approximating Viewport Overlap
+### Approximating Viewport Overlap
 
 Calculating the exact area of the geometric overlap between viewports is complex. We approximated the amount of overlap between two viewports by the shortest arc length between the centers of those viewports, known as the *geodesic distance*.
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Illustration_of_great-circle_distance.svg/1200px-Illustration_of_great-circle_distance.svg.png" style="zoom:10%;" />
+<p align="center">
+<img align="middle" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Illustration_of_great-circle_distance.svg/1200px-Illustration_of_great-circle_distance.svg.png" width="256"/>
+</p>
 
-#### Overview
+### Overview
 
 |                   | Two users are similar during a video frame if . . .          |
 | ----------------- | ------------------------------------------------------------ |
@@ -46,27 +48,33 @@ Calculating the exact area of the geometric overlap between viewports is complex
 | DBSCAN            | . . . their viewport centers belong to the same DBSCAN cluster. |
 | Geodesic distance | . . . their geodesic distance between their viewport centers is within a certain distance threshold. |
 
-#### K-means Clustering
+### K-means Clustering
 
 K-means clustering is a popular and fast clustering algorithm that partitions data points into a fixed number of clusters *k*. It aims to minimize the distance between points in a cluster and the *centroid* of the cluster. We used *k* = 3 clusters.
 
-<img src="Images\kmeans.png" alt="K-means clustering" style="zoom:50%;" />
+<p align="center">
+<img src="Images\kmeans.png" alt="K-means clustering" height="200"/>
+</p>
 
-#### DBSCAN
+### DBSCAN
 
 Density-Based Spatial Clustering of Applications with Noise (DBSCAN) defines clusters as regions of high data point density, consisting of tightly-packed *core* points and sparser *non-core* points. DBSCAN allows for a variable number of clusters of varying size, and excludes outlier points.
 
-<img src="Images\dbscan.png" alt="DBSCAN" style="zoom:60%;" />
+<p align="center">
+<img src="Images\dbscan.png" alt="DBSCAN" height="200"/>
+</p>
 
-### Clustering Users
+## Clustering Users
 
 Frame-by-frame analyses alone are insufficient to determine whether users exhibit similar behavior or not - that requires analyzing user behavior over time.
 
-<img src="Images\clustering.png" alt="clustering" style="zoom:60%;" />
+<p align="center">
+<img src="Images\clustering.png" alt="clustering height="200"/>
+</p>
 
 We split videos into 60-frame time intervals called *chunks*, and grouped users who were similar to one another for 60% of a chunk into the same cluster, thus obtaining a set of clusters for each video chunk.
 
-### Evaluating Cluster Quality
+## Evaluating Cluster Quality
 
 Intuitively, the denser a cluster is, the greater the viewport overlap is between users in the cluster, and the more likely it is that users in the cluster exhibit similar behavior.
 
