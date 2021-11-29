@@ -1,3 +1,7 @@
+# VR User Behavior Clustering
+
+![poster](C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\poster.jpg)
+
 ## Motivation
 
 Streaming 360-degree videos has high bandwidth requirements owing to the high resolutions (4k or higher) necessary to deliver a satisfactory viewing experience in VR. During video playback, many users may tend to focus on the same areas within a video, known as *regions of interest*. Video content delivery can be optimized by rendering only these regions at high resolution while reducing resolution elsewhere, thus reducing bandwidth usage while maintaining an acceptable viewing experience.
@@ -19,6 +23,54 @@ We evaluate the efficacy of three different methods of determining whether users
 Methods for determining user similarity that take into account user viewport *density* can effectively identify distinct groups of users with similar behavior.
 
 ## Method
+
+1. Find users with similar viewports using each method for determining similarity
+2. Group users which are similar for a certain time interval into clusters
+3. Evaluate the quality of each cluster
+
+Using this method, we analyzed 28 different 360-degree videos, categorized by the type of camera movement and number of moving objects present in each video.
+
+### Identifying Similar Users
+
+#### Approximating Viewport Overlap
+
+Calculating the exact area of the geometric overlap between viewports is complex. We approximated the amount of overlap between two viewports by the shortest arc length between the centers of those viewports, known as the *geodesic distance*.
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Illustration_of_great-circle_distance.svg/1200px-Illustration_of_great-circle_distance.svg.png" style="zoom:20%;" />
+
+#### Overview
+
+|                   | Two users are similar during a video frame if . . .          |
+| ----------------- | ------------------------------------------------------------ |
+| K-means           | . . . their viewport centers belong to the same K-means cluster. |
+| DBSCAN            | . . . their viewport centers belong to the same DBSCAN cluster. |
+| Geodesic distance | . . . their geodesic distance between their viewport centers is within a certain distance threshold. |
+
+#### K-means Clustering
+
+K-means clustering is a popular and fast clustering algorithm that partitions data points into a fixed number of clusters *k*. It aims to minimize the distance between points in a cluster and the *centroid* of the cluster. We used *k* = 3 clusters.
+
+<img src="C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\kmeans.png" alt="kmeans" style="zoom:50%;" />
+
+#### DBSCAN
+
+Density-Based Spatial Clustering of Applications with Noise (DBSCAN) defines clusters as regions of high data point density, consisting of tightly-packed *core* points and sparser *non-core* points. DBSCAN allows for a variable number of clusters of varying size, and excludes outlier points.
+
+<img src="C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\dbscan.png" alt="dbscan" style="zoom:60%;" />
+
+### Clustering Users
+
+Frame-by-frame analyses alone are insufficient to determine whether users exhibit similar behavior or not - that requires analyzing user behavior over time.
+
+![clustering](C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\clustering.png)
+
+We split videos into 60-frame time intervals called *chunks*, and grouped users who were similar to one another for 60% of a chunk into the same cluster, thus obtaining a set of clusters for each video chunk.
+
+### Evaluating Cluster Quality
+
+Intuitively, the denser a cluster is, the greater the viewport overlap is between users in the cluster, and the more likely it is that users in the cluster exhibit similar behavior.
+
+
 
 # OLD README BELOW
 
