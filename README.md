@@ -1,3 +1,27 @@
+## Motivation
+
+Streaming 360-degree videos has high bandwidth requirements owing to the high resolutions (4k or higher) necessary to deliver a satisfactory viewing experience in VR. During video playback, many users may tend to focus on the same areas within a video, known as *regions of interest*. Video content delivery can be optimized by rendering only these regions at high resolution while reducing resolution elsewhere, thus reducing bandwidth usage while maintaining an acceptable viewing experience.
+
+## **Introduction**
+
+Identifying regions of interest requires analyzing the viewing behaviors of many users. Since users may exhibit diverse viewing behaviors, it is useful to group users with *similar* viewing behaviors together, and tailor video content delivery for each group individually, rather than adopting a one-size-fits-all-approach. We refer to such groups of users as *clusters*.
+
+There are many ways of identifying users with similar viewing behavior. We adopt an approach based on *viewport overlap*: the greater the overlap between the field-of-views, or *viewports* of two users, the more likely it is that they are looking at the same area of a video.
+
+We evaluate the efficacy of three different methods of determining whether users are similar based on their viewport overlap:
+
+- K-means clustering
+- DBSCAN clustering
+- Geodesic distance
+
+## Hypothesis
+
+Methods for determining user similarity that take into account user viewport *density* can effectively identify distinct groups of users with similar behavior.
+
+## Method
+
+# OLD README BELOW
+
 # VR User Behavior Clustering
 
 ACM Research Fall 2021
