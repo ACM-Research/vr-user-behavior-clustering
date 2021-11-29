@@ -1,6 +1,6 @@
 # VR User Behavior Clustering
 
-![poster](C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\poster.jpg)
+![poster](Images\poster.jpg)
 
 ## Motivation
 
@@ -50,19 +50,19 @@ Calculating the exact area of the geometric overlap between viewports is complex
 
 K-means clustering is a popular and fast clustering algorithm that partitions data points into a fixed number of clusters *k*. It aims to minimize the distance between points in a cluster and the *centroid* of the cluster. We used *k* = 3 clusters.
 
-<img src="C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\kmeans.png" alt="kmeans" style="zoom:50%;" />
+<img src="Images\kmeans.png" alt="kmeans" style="zoom:50%;" />
 
 #### DBSCAN
 
 Density-Based Spatial Clustering of Applications with Noise (DBSCAN) defines clusters as regions of high data point density, consisting of tightly-packed *core* points and sparser *non-core* points. DBSCAN allows for a variable number of clusters of varying size, and excludes outlier points.
 
-<img src="C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\dbscan.png" alt="dbscan" style="zoom:60%;" />
+<img src="Images\dbscan.png" alt="dbscan" style="zoom:60%;" />
 
 ### Clustering Users
 
 Frame-by-frame analyses alone are insufficient to determine whether users exhibit similar behavior or not - that requires analyzing user behavior over time.
 
-![clustering](C:\Users\A Yan\Documents\UTD\2021_fall\acm-research\vr-user-behavior-clustering\Images\clustering.png)
+![clustering](Images\clustering.png)
 
 We split videos into 60-frame time intervals called *chunks*, and grouped users who were similar to one another for 60% of a chunk into the same cluster, thus obtaining a set of clusters for each video chunk.
 
